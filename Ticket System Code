@@ -1,0 +1,107 @@
+import json
+import os
+from datetime import datetime
+
+# File to store tickets
+TICKET_FILE = "tickets.json"
+
+# Load tickets from file
+def load_tickets():
+    if os.path.exists(TICKET_FILE):
+        with open(TICKET_FILE, "r") as f:
+            return json.load(f)
+    return []
+
+# Save tickets to file
+def save_tickets(tickets):
+    with open(TICKET_FILE, "w") as f:
+        json.dump(tickets, f, indent=4)
+
+# Display all tickets
+def view_tickets(tickets):
+    if not tickets:
+        print("\nNo tickets found.\n")
+        return
+    print("\n--- Help Desk Tickets ---")
+    for t in tickets:
+        print(f"ID: {t['id']}")
+        print(f"Title: {t['title']}")
+        print(f"Description: {t['description']}")
+        print(f"Priority: {t['priority']}")
+        print(f"Status: {t['status']}")
+        print(f"Created: {t['created']}")
+        print("-" * 30)
+    print()
+
+# Create a new ticket
+def create_ticket(tickets):
+    title = input("Enter ticket title: ")
+    description = input("Enter issue description: ")
+    priority = input("Enter priority (Low/Medium/High): ").capitalize()
+
+    ticket_id = len(tickets) + 1
+    new_ticket = {
+        "id": ticket_id,
+        "title": title,
+        "description": description,
+        "priority": priority,
+        "status": "Open",
+        "created": datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    }
+
+    tickets.append(new_ticket)
+    save_tickets(tickets)
+    print(f"\n✅ Ticket #{ticket_id} created successfully!\n")
+
+# Update ticket status
+def update_ticket(tickets):
+    ticket_id = input("Enter ticket ID to update: ")
+    for t in tickets:
+        if str(t["id"]) == ticket_id:
+            print(f"Current status: {t['status']}")
+            new_status = input("Enter new status (Open/In Progress/Resolved): ")
+            t["status"] = new_status
+            save_tickets(tickets)
+            print(f"\n✅ Ticket #{ticket_id} updated successfully!\n")
+            return
+    print("❌ Ticket not found.\n")
+
+# Delete a ticket
+def delete_ticket(tickets):
+    ticket_id = input("Enter ticket ID to delete: ")
+    for t in tickets:
+        if str(t["id"]) == ticket_id:
+            tickets.remove(t)
+            save_tickets(tickets)
+            print(f"\n🗑️ Ticket #{ticket_id} deleted successfully!\n")
+            return
+    print("❌ Ticket not found.\n")
+
+# Main menu
+def main():
+    tickets = load_tickets()
+    while True:
+        print("=== Help Desk Ticketing System ===")
+        print("1. View all tickets")
+        print("2. Create a new ticket")
+        print("3. Update ticket status")
+        print("4. Delete a ticket")
+        print("5. Exit")
+        choice = input("Select an option: ")
+
+        if choice == "1":
+            view_tickets(tickets)
+        elif choice == "2":
+            create_ticket(tickets)
+        elif choice == "3":
+            update_ticket(tickets)
+        elif choice == "4":
+            delete_ticket(tickets)
+        elif choice == "5":
+            print("Goodbye!")
+            break
+        else:
+            print("❌ Invalid option. Try again.\n")
+
+if __name__ == "__main__":
+    main()
